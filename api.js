@@ -1,4 +1,4 @@
-// api.js - Gerenciamento de requisições à API
+// api.js 
 
 const API_BASE_URL = 'https://base-back-dwpz.onrender.com';
 

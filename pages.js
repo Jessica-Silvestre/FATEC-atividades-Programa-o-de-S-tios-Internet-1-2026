@@ -14,10 +14,17 @@ const Pages = {
   logo.className = 'navbar-logo';
   logo.href = '#';
   
+  const logoImg = document.createElement('img');
+  logoImg.src = 'img/logoTransparente.png';
+  logoImg.alt = 'BeautyShop Logo';
+  logoImg.style.height = '40px';
+  logoImg.style.width = 'auto';
+  logoImg.style.marginRight = '0.5rem';
+  logoImg.style.display = 'none'; // Logo removida
 
   const logoText = document.createElement('span');
   logoText.className = 'logo-text';
-  logoText.innerHTML = `<div style="font-size: 1.5rem; font-weight: 700; line-height: 1; text-align: center;">Beleza</div><div style="font-size: 0.75rem; font-style: italic; text-align: center;">na Fatec</div>`;
+  logoText.innerHTML = `<div style="font-size: 1.5rem; font-weight: 700; line-height: 1;">Beleza</div><div style="font-size: 0.75rem; font-style: italic;">na Fatec</div>`;
   logo.appendChild(logoText);
 
   logo.addEventListener('click', (e) => {
@@ -40,7 +47,7 @@ const Pages = {
 
     const cadastroBtn = document.createElement('button');
     cadastroBtn.className = 'navbar-menu-item';
-    cadastroBtn.textContent = 'Cadastro';
+    cadastroBtn.textContent = 'Cadastro de Produtos';
     cadastroBtn.addEventListener('click', () => {
       document.querySelectorAll('.navbar-menu-item').forEach(btn => btn.classList.remove('active'));
       cadastroBtn.classList.add('active');
@@ -87,7 +94,6 @@ const Pages = {
     const heroContent = document.createElement('div');
     heroContent.className = 'hero-content';
 
-    //  IMAGEM CORRIGIDA - Agora aparece corretamente
     const heroImage = document.createElement('img');
     heroImage.src = 'img/imgRealista.png';
     heroImage.alt = 'BeautyShop - Produtos de Beleza';
@@ -123,11 +129,11 @@ const Pages = {
     filterContainer.className = 'category-filters';
 
     const categories = [
-      { id: 'todos', label: '✨ Todos' },
-      { id: 'maquiagem', label: '💄 Maquiagem' },
-      { id: 'skincare', label: '🧴 Skincare' },
-      { id: 'cabelos', label: '💆 Cabelos' },
-      { id: 'perfumes', label: '🌸 Perfumes' }
+      { id: 'todos', label: 'Todos' },
+      { id: 'maquiagem', label: 'Maquiagem' },
+      { id: 'skincare', label: 'Skincare' },
+      { id: 'cabelos', label: 'Cabelos' },
+      { id: 'perfumes', label: 'Perfumes' }
     ];
 
     categories.forEach((cat) => {
@@ -149,7 +155,7 @@ const Pages = {
 
     const loading = document.createElement('div');
     loading.className = 'loading';
-    loading.textContent = '⏳ Carregando produtos...';
+    loading.textContent = 'Carregando produtos...';
     productsGrid.appendChild(loading);
 
     catalogContainer.appendChild(title);
@@ -167,9 +173,14 @@ const Pages = {
     // Carregar produtos
     try {
       const products = await API.getProducts();
+      
+      // Integrar produtos publicados do cadastro
+      const produtosPublicados = ProdutoCadastro.getProdutosPublicados();
+      const allProducts = [...products, ...produtosPublicados];
+      
       productsGrid.innerHTML = '';
 
-      if (!products || products.length === 0) {
+      if (!allProducts || allProducts.length === 0) {
         const emptyMsg = document.createElement('div');
         emptyMsg.className = 'empty-message';
         emptyMsg.textContent = 'Nenhum produto disponível no momento';
@@ -177,7 +188,7 @@ const Pages = {
         return;
       }
 
-      products.forEach(product => {
+      allProducts.forEach(product => {
         const card = Pages.createProductCard(product);
         productsGrid.appendChild(card);
       });
@@ -186,7 +197,7 @@ const Pages = {
       productsGrid.innerHTML = '';
       const errorDiv = document.createElement('div');
       errorDiv.className = 'empty-message';
-      errorDiv.textContent = '❌ Erro ao carregar produtos. Tente novamente.';
+      errorDiv.textContent = 'Erro ao carregar produtos. Tente novamente.';
       productsGrid.appendChild(errorDiv);
     }
   },
@@ -222,14 +233,6 @@ const Pages = {
       image.src = 'https://dummyimage.com/280x250/cccccc/969696.jpg'; 
     };
     imageContainer.appendChild(image);
-
-    // Badge
-    if (product.desconto) {
-      const badge = document.createElement('div');
-      badge.className = 'product-badge';
-      badge.textContent = `-${product.desconto}%`;
-      imageContainer.appendChild(badge);
-    }
 
     // Info
     const info = document.createElement('div');
@@ -267,9 +270,9 @@ const Pages = {
 
     const addCartBtn = document.createElement('button');
     addCartBtn.className = 'btn-add-cart';
-    addCartBtn.textContent = '🛒 Adicionar';
+    addCartBtn.textContent = 'Adicionar';
     addCartBtn.addEventListener('click', () => {
-      alert(`✓ ${product.nome} adicionado ao carrinho!`);
+      alert(`${product.nome} adicionado ao carrinho!`);
     });
 
     const favoriteBtn = document.createElement('button');
@@ -294,7 +297,7 @@ const Pages = {
     return card;
   },
 
-  // Login Modal
+  // Login 
   renderLoginModal(container, callbacks) {
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
@@ -360,7 +363,6 @@ const Pages = {
     passwordGroup.appendChild(passwordLabel);
     passwordGroup.appendChild(passwordInput);
 
-    // Submit
     const submitBtn = document.createElement('button');
     submitBtn.type = 'button';
     submitBtn.className = 'btn-submit';
@@ -373,7 +375,7 @@ const Pages = {
       errorDiv.style.display = 'none';
 
       if (!email || !password) {
-        errorDiv.textContent = '❌ Preencha e-mail e senha';
+        errorDiv.textContent = 'Preencha e-mail e senha';
         errorDiv.style.display = 'block';
         return;
       }
@@ -384,16 +386,16 @@ const Pages = {
 
         const response = await API.login(email, password);
 
-        if (callbacks.onLoginSuccess) {
-          callbacks.onLoginSuccess(response);
-        }
-
         setTimeout(() => {
           overlay.remove();
-          callbacks.onClose();
-        }, 1500);
+          // Após login, onLoginSuccess é chamado em main.js
+          // NÃO chamar onClose() aqui, pois isso volta para catálogo
+          if (callbacks.onLoginSuccess) {
+            callbacks.onLoginSuccess(response);
+          }
+        }, 500);
       } catch (error) {
-        errorDiv.textContent = `❌ ${error.message || 'Erro ao fazer login'}`;
+        errorDiv.textContent = `${error.message || 'Erro ao fazer login'}`;
         errorDiv.style.display = 'block';
       } finally {
         submitBtn.disabled = false;
@@ -429,7 +431,7 @@ const Pages = {
     document.body.appendChild(overlay);
   },
 
-  // Cadastro Modal
+  // Cadastro 
   renderCadastroModal(container, callbacks) {
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
@@ -614,7 +616,7 @@ const Pages = {
     compGroup.appendChild(compLabel);
     compGroup.appendChild(compInput);
 
-    // Submit
+   
     const submitBtn = document.createElement('button');
     submitBtn.type = 'button';
     submitBtn.className = 'btn-submit';
@@ -633,23 +635,23 @@ const Pages = {
       errorDiv.style.display = 'none';
       successDiv.style.display = 'none';
 
-      // ✅ VALIDAÇÃO COMPLETA
+      // VALIDAÇÃO COMPLETA
       if (!nome || !sobrenome || !email || !senha || !confirmaSenha || !endereco) {
-        errorDiv.textContent = '❌ Preencha todos os campos obrigatórios';
+        errorDiv.textContent = 'Preencha todos os campos obrigatórios';
         errorDiv.style.display = 'block';
         return;
       }
 
-      // ✅ Validar comprimento da senha
-      if (senha.length < 6) {
-        errorDiv.textContent = '❌ A senha deve ter no mínimo 6 caracteres';
+      // Validar comprimento da senha
+      if (senha.length < 4) {
+        errorDiv.textContent = 'A senha deve ter no mínimo 4 caracteres';
         errorDiv.style.display = 'block';
         return;
       }
 
-      // ✅ Validar se as senhas são iguais
+      // Validar se as senhas são iguais
       if (senha !== confirmaSenha) {
-        errorDiv.textContent = '❌ As senhas não conferem! Digite a mesma senha em ambos os campos.';
+        errorDiv.textContent = 'As senhas não conferem! Digite a mesma senha em ambos os campos.';
         errorDiv.style.display = 'block';
         confirmaSenhaInput.style.borderColor = '#ef4444';
         confirmaSenhaInput.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.1)';
@@ -672,10 +674,10 @@ const Pages = {
 
         const response = await API.createClient(clientData);
 
-        successDiv.textContent = '✓ Cadastro realizado com sucesso!';
+        successDiv.textContent = 'Cadastro realizado com sucesso!';
         successDiv.style.display = 'block';
 
-        // ✅ NOVO: Salvar dados do usuário para auto-login
+        //  Salvar usuário para auto-login
         const usuarioDados = {
           email: email,
           senha: senha,
@@ -696,11 +698,12 @@ const Pages = {
 
         setTimeout(() => {
           overlay.remove();
-          // ✅ NOVO: Fazer login automático após cadastro
+
+          //  Fazer login automático após cadastro
           callbacks.onCadastroSuccess(usuarioDados);
         }, 2000);
       } catch (error) {
-        errorDiv.textContent = `❌ ${error.message || 'Erro ao cadastrar'}`;
+        errorDiv.textContent = `${error.message || 'Erro ao cadastrar'}`;
         errorDiv.style.display = 'block';
       } finally {
         submitBtn.disabled = false;
@@ -708,7 +711,7 @@ const Pages = {
       }
     });
 
-    // Toggle para login
+    // login
     const toggleDiv = document.createElement('div');
     toggleDiv.className = 'form-toggle';
     const toggleText = document.createTextNode('Já tem conta? ');
