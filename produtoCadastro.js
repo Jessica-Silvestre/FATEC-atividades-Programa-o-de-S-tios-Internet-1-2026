@@ -61,8 +61,23 @@ const ProdutoCadastro = {
   // Deletar produto
   deleteProduct(id) {
     let products = this.getProdutosCadastrados();
-    products = products.filter(p => p.id !== id);
+    // Remove apenas o primeiro (um de cada vez)
+    const index = products.findIndex(p => p.id === id);
+    if (index !== -1) {
+      products.splice(index, 1);
+    }
     this.saveProdutosCadastrados(products);
+  },
+
+  // Deletar apenas 1 produto publicado do catálogo
+  deletePublishedProduct(id) {
+    let publicados = this.getProdutosPublicados();
+    // Remove apenas o primeiro (um de cada vez)
+    const index = publicados.findIndex(p => p.id === id);
+    if (index !== -1) {
+      publicados.splice(index, 1);
+    }
+    this.saveProdutosPublicados(publicados);
   },
 
   // Renderizar página de cadastro de produto
@@ -438,6 +453,162 @@ const ProdutoCadastro = {
     });
 
     catalogContainer.appendChild(publishAllBtn);
+    catalogPage.appendChild(catalogContainer);
+    page.appendChild(catalogPage);
+
+    // ===== FOOTER =====
+    const footerElement = Pages.renderFooter();
+    page.appendChild(footerElement);
+
+    container.appendChild(page);
+  },
+
+  // Gerenciar produtos publicados no catálogo
+  renderGerenciarCatalogo(container, callbacks) {
+    container.innerHTML = '';
+    const page = document.createElement('div');
+    page.style.minHeight = '100vh';
+    page.style.display = 'flex';
+    page.style.flexDirection = 'column';
+
+    // ===== NAVBAR =====
+    const navbar = Pages.renderNavbar(container, {
+      onLogoClick: () => callbacks.onCancel(),
+      onCatalogClick: () => callbacks.onCancel(),
+      onCadastroClick: () => callbacks.onCancel(),
+      onLoginClick: () => callbacks.onCancel(),
+      onGerenciarCatalogo: () => callbacks.onCancel()
+    });
+    page.appendChild(navbar);
+
+    // ===== CONTEÚDO =====
+    const catalogPage = document.createElement('div');
+    catalogPage.className = 'catalog-page';
+    catalogPage.style.flex = '1';
+
+    const catalogContainer = document.createElement('div');
+    catalogContainer.className = 'catalog-container';
+
+    const title = document.createElement('h2');
+    title.className = 'section-title';
+    title.textContent = 'Gerenciar Catálogo';
+
+    const subtitle = document.createElement('p');
+    subtitle.className = 'section-subtitle';
+    subtitle.textContent = 'Gerencie os produtos publicados no catálogo';
+
+    const voltarBtn = document.createElement('button');
+    voltarBtn.textContent = 'Voltar';
+    voltarBtn.className = 'filter-btn';
+    voltarBtn.style.marginBottom = '2rem';
+    voltarBtn.addEventListener('click', () => callbacks.onCancel());
+
+    const productsGrid = document.createElement('div');
+    productsGrid.className = 'products-grid';
+
+    const publicados = ProdutoCadastro.getProdutosPublicados();
+
+    catalogContainer.appendChild(title);
+    catalogContainer.appendChild(subtitle);
+    catalogContainer.appendChild(voltarBtn);
+
+    if (publicados.length === 0) {
+      const emptyMsg = document.createElement('div');
+      emptyMsg.className = 'empty-message';
+      emptyMsg.style.gridColumn = '1 / -1';
+      emptyMsg.textContent = 'Nenhum produto publicado no catálogo ainda.';
+      productsGrid.appendChild(emptyMsg);
+    } else {
+      publicados.forEach(product => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+
+        const imageContainer = document.createElement('div');
+        imageContainer.className = 'product-image-container';
+        const image = document.createElement('img');
+        image.className = 'product-image';
+        image.src = product.imagem;
+        image.alt = product.nome;
+        imageContainer.appendChild(image);
+
+        const info = document.createElement('div');
+        info.className = 'product-info';
+
+        const name = document.createElement('h3');
+        name.className = 'product-name';
+        name.textContent = product.nome;
+
+        const description = document.createElement('p');
+        description.className = 'product-description';
+        description.textContent = product.descricao;
+
+        const priceContainer = document.createElement('div');
+        priceContainer.className = 'product-price-container';
+        const price = document.createElement('span');
+        price.className = 'product-price';
+        price.textContent = `R$ ${parseFloat(product.preco).toFixed(2)}`;
+        priceContainer.appendChild(price);
+
+        const status = document.createElement('small');
+        status.style.color = '#10b981';
+        status.style.marginTop = 'auto';
+        status.style.fontWeight = '600';
+        status.textContent = `Publicado em: ${product.publicado_em}`;
+
+        info.appendChild(name);
+        info.appendChild(description);
+        info.appendChild(priceContainer);
+        info.appendChild(status);
+
+        const footer = document.createElement('div');
+        footer.className = 'product-footer';
+        footer.style.marginTop = '1rem';
+        footer.style.display = 'flex';
+        footer.style.flexDirection = 'column';
+        footer.style.gap = '0.5rem';
+
+        const topButtons = document.createElement('div');
+        topButtons.style.display = 'flex';
+        topButtons.style.gap = '0.5rem';
+
+        const editBtn = document.createElement('button');
+        editBtn.className = 'btn-add-cart';
+        editBtn.textContent = 'Editar';
+        editBtn.style.background = '#3b82f6';
+        editBtn.style.flex = '1';
+        editBtn.addEventListener('click', () => {
+          // Editar produto publicado
+          if (callbacks.onEditPublishedProduct) {
+            callbacks.onEditPublishedProduct(product);
+          }
+        });
+
+        topButtons.appendChild(editBtn);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'btn-favorite';
+        deleteBtn.textContent = 'Remover do Catálogo';
+        deleteBtn.style.background = '#fee2e2';
+        deleteBtn.style.color = '#dc2626';
+        deleteBtn.style.width = '100%';
+        deleteBtn.addEventListener('click', () => {
+          if (confirm(`Tem certeza que deseja remover "${product.nome}" do catálogo?`)) {
+            ProdutoCadastro.deletePublishedProduct(product.id);
+            ProdutoCadastro.renderGerenciarCatalogo(container, callbacks);
+          }
+        });
+
+        footer.appendChild(topButtons);
+        footer.appendChild(deleteBtn);
+        info.appendChild(footer);
+
+        card.appendChild(imageContainer);
+        card.appendChild(info);
+        productsGrid.appendChild(card);
+      });
+    }
+
+    catalogContainer.appendChild(productsGrid);
     catalogPage.appendChild(catalogContainer);
     page.appendChild(catalogPage);
 

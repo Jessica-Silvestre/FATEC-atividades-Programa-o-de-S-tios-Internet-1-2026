@@ -16,9 +16,20 @@ class BeautyShopApp {
     Pages.renderCatalog(this.app, {
       onLogoClick: () => this.showCatalog(),
       onCatalogClick: () => this.showCatalog(),
-      onCadastroClick: () => this.showCadastroModal(),
+      onCadastroClick: () => {
+        // Verificar se está logado
+        const usuarioLogado = localStorage.getItem('usuarioLogado');
+        if (usuarioLogado) {
+          // Se está logado, vai direto para adicionar produto
+          this.showAddProductPage();
+        } else {
+          // Se não está logado, mostra modal de cadastro de usuário
+          this.showCadastroModal();
+        }
+      },
       onLoginClick: () => this.showLoginModal(),
-      onAdminProductsClick: () => this.showMyProducts()
+      onAdminProductsClick: () => this.showMyProducts(),
+      onGerenciarCatalogo: () => this.showGerenciarCatalogo()
     });
   }
 
@@ -49,7 +60,7 @@ class BeautyShopApp {
     });
   }
 
-  // página de cadastro de produtos
+  // NOVO: Mostrar página de cadastro de produtos
   showAddProductPage() {
     this.currentPage = 'add-product';
     ProdutoCadastro.renderAddProductPage(this.app, {
@@ -58,7 +69,7 @@ class BeautyShopApp {
     });
   }
 
-  //  página com meus produtos
+  // NOVO: Mostrar página com meus produtos
   showMyProducts() {
     this.currentPage = 'my-products';
     ProdutoCadastro.renderMyProductsPage(this.app, {
@@ -69,6 +80,7 @@ class BeautyShopApp {
     });
   }
 
+  // NOVO: Mostrar página de edição
   showEditProduct(product) {
     this.currentPage = 'edit-product';
     ProdutoCadastro.renderEditProductPage(this.app, product, {
@@ -76,9 +88,20 @@ class BeautyShopApp {
       onCancel: () => this.showMyProducts()
     });
   }
+
+  // NOVO: Gerenciar catálogo de produtos publicados
+  showGerenciarCatalogo() {
+    this.currentPage = 'gerenciar-catalogo';
+    ProdutoCadastro.renderGerenciarCatalogo(this.app, {
+      onEditPublishedProduct: (product) => {
+        alert('Funcionalidade em desenvolvimento');
+      },
+      onCancel: () => this.showCatalog()
+    });
+  }
 }
 
-// Inicializar app com DOM 
+// Inicializar app quando DOM estiver pronto
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     window.app = new BeautyShopApp();

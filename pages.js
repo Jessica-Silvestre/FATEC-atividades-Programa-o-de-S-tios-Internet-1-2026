@@ -20,8 +20,7 @@ const Pages = {
   logoImg.style.height = '40px';
   logoImg.style.width = 'auto';
   logoImg.style.marginRight = '0.5rem';
-  logoImg.style.display = 'none'; // Logo removida
-
+  logoImg.style.display = 'none'; 
   const logoText = document.createElement('span');
   logoText.className = 'logo-text';
   logoText.innerHTML = `<div style="font-size: 1.5rem; font-weight: 700; line-height: 1;">Beleza</div><div style="font-size: 0.75rem; font-style: italic;">na Fatec</div>`;
@@ -54,8 +53,25 @@ const Pages = {
       callbacks.onCadastroClick();
     });
 
+    const gerenciarBtn = document.createElement('button');
+    gerenciarBtn.className = 'navbar-menu-item';
+    gerenciarBtn.textContent = 'Gerenciar Catálogo';
+    gerenciarBtn.style.display = 'none'; 
+    gerenciarBtn.addEventListener('click', () => {
+      document.querySelectorAll('.navbar-menu-item').forEach(btn => btn.classList.remove('active'));
+      gerenciarBtn.classList.add('active');
+      callbacks.onGerenciarCatalogo();
+    });
+
     menu.appendChild(catalogBtn);
     menu.appendChild(cadastroBtn);
+    menu.appendChild(gerenciarBtn);
+
+    // Verificar se usuário está logado
+    const usuarioLogado = localStorage.getItem('novoUsuario') || localStorage.getItem('usuarioLogado');
+    if (usuarioLogado) {
+      gerenciarBtn.style.display = 'block'; 
+    }
 
     // Actions
     const actions = document.createElement('div');
@@ -64,11 +80,25 @@ const Pages = {
     const loginBtn = document.createElement('button');
     loginBtn.className = 'btn-auth';
     loginBtn.textContent = 'Entrar';
+    loginBtn.style.display = usuarioLogado ? 'none' : 'block'; 
     loginBtn.addEventListener('click', () => callbacks.onLoginClick());
 
- 
+    // Botão Sair (aparece apenas se logado)
+    const sairBtn = document.createElement('button');
+    sairBtn.className = 'btn-auth btn-auth-primary';
+    sairBtn.textContent = 'Sair';
+    sairBtn.style.display = usuarioLogado ? 'block' : 'none'; 
+    sairBtn.addEventListener('click', () => {
+      localStorage.removeItem('novoUsuario');
+      localStorage.removeItem('usuarioLogado');
+      gerenciarBtn.style.display = 'none';
+      loginBtn.style.display = 'block';
+      sairBtn.style.display = 'none';
+      callbacks.onLogoClick();
+    });
 
     actions.appendChild(loginBtn);
+    actions.appendChild(sairBtn);
    
 
     navbarContainer.appendChild(logo);
@@ -389,6 +419,12 @@ const Pages = {
 
         const response = await API.login(email, password);
 
+        // Salvar dados do usuário logado
+        localStorage.setItem('usuarioLogado', JSON.stringify({
+          email: email,
+          nome: email.split('@')[0]
+        }));
+
         setTimeout(() => {
           overlay.remove();
           // Após login, onLoginSuccess é chamado em main.js
@@ -700,6 +736,12 @@ const Pages = {
           sobrenome: sobrenome
         };
         localStorage.setItem('novoUsuario', JSON.stringify(usuarioDados));
+        
+        // Salvar como logado também
+        localStorage.setItem('usuarioLogado', JSON.stringify({
+          email: email,
+          nome: nome
+        }));
 
         // Limpar
         nomeInput.value = '';
