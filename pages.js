@@ -94,6 +94,7 @@ const Pages = {
     const heroContent = document.createElement('div');
     heroContent.className = 'hero-content';
 
+    //  IMAGEM CORRIGIDA - Agora aparece corretamente
     const heroImage = document.createElement('img');
     heroImage.src = 'img/imgRealista.png';
     heroImage.alt = 'BeautyShop - Produtos de Beleza';
@@ -297,7 +298,7 @@ const Pages = {
     return card;
   },
 
-  // Login 
+  // Login Modal
   renderLoginModal(container, callbacks) {
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
@@ -363,12 +364,14 @@ const Pages = {
     passwordGroup.appendChild(passwordLabel);
     passwordGroup.appendChild(passwordInput);
 
+    // Submit
     const submitBtn = document.createElement('button');
     submitBtn.type = 'button';
     submitBtn.className = 'btn-submit';
     submitBtn.textContent = 'Entrar';
 
-    submitBtn.addEventListener('click', async () => {
+    // Função para fazer login (usada tanto no click quanto no Enter)
+    const performLogin = async () => {
       const email = emailInput.value.trim();
       const password = passwordInput.value.trim();
 
@@ -401,6 +404,17 @@ const Pages = {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Entrar';
       }
+    };
+
+    // Click no botão
+    submitBtn.addEventListener('click', performLogin);
+
+    // Enter na senha
+    passwordInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        performLogin();
+      }
     });
 
     // Toggle para cadastro
@@ -431,7 +445,7 @@ const Pages = {
     document.body.appendChild(overlay);
   },
 
-  // Cadastro 
+  // Cadastro Modal
   renderCadastroModal(container, callbacks) {
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
@@ -616,13 +630,14 @@ const Pages = {
     compGroup.appendChild(compLabel);
     compGroup.appendChild(compInput);
 
-   
+    // Submit
     const submitBtn = document.createElement('button');
     submitBtn.type = 'button';
     submitBtn.className = 'btn-submit';
     submitBtn.textContent = 'Cadastrar';
 
-    submitBtn.addEventListener('click', async () => {
+    // Função para fazer cadastro (usada tanto no click quanto no Enter)
+    const performCadastro = async () => {
       const nome = nomeInput.value.trim();
       const sobrenome = sobrenomeInput.value.trim();
       const email = emailInput.value.trim();
@@ -643,8 +658,8 @@ const Pages = {
       }
 
       // Validar comprimento da senha
-      if (senha.length < 4) {
-        errorDiv.textContent = 'A senha deve ter no mínimo 4 caracteres';
+      if (senha.length < 6) {
+        errorDiv.textContent = 'A senha deve ter no mínimo 6 caracteres';
         errorDiv.style.display = 'block';
         return;
       }
@@ -677,7 +692,7 @@ const Pages = {
         successDiv.textContent = 'Cadastro realizado com sucesso!';
         successDiv.style.display = 'block';
 
-        //  Salvar usuário para auto-login
+        // NOVO: Salvar dados do usuário para auto-login
         const usuarioDados = {
           email: email,
           senha: senha,
@@ -698,8 +713,7 @@ const Pages = {
 
         setTimeout(() => {
           overlay.remove();
-
-          //  Fazer login automático após cadastro
+          // NOVO: Fazer login automático após cadastro
           callbacks.onCadastroSuccess(usuarioDados);
         }, 2000);
       } catch (error) {
@@ -709,9 +723,20 @@ const Pages = {
         submitBtn.disabled = false;
         submitBtn.textContent = 'Cadastrar';
       }
+    };
+
+    // Click no botão
+    submitBtn.addEventListener('click', performCadastro);
+
+    // Enter no confirmar senha
+    confirmaSenhaInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        performCadastro();
+      }
     });
 
-    // login
+    // Toggle para login
     const toggleDiv = document.createElement('div');
     toggleDiv.className = 'form-toggle';
     const toggleText = document.createTextNode('Já tem conta? ');

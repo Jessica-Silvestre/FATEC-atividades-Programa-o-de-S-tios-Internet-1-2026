@@ -305,6 +305,10 @@ const ProdutoCadastro = {
     newProductBtn.style.marginBottom = '2rem';
     newProductBtn.addEventListener('click', () => callbacks.onAddProduct());
 
+    catalogContainer.appendChild(title);
+    catalogContainer.appendChild(subtitle);
+    catalogContainer.appendChild(newProductBtn);
+
     const productsGrid = document.createElement('div');
     productsGrid.className = 'products-grid';
 
@@ -368,20 +372,6 @@ const ProdutoCadastro = {
         topButtons.style.display = 'flex';
         topButtons.style.gap = '0.5rem';
 
-        const publishBtn = document.createElement('button');
-        publishBtn.className = 'btn-add-cart';
-        publishBtn.textContent = 'Publicar';
-        publishBtn.style.background = '#10b981';
-        publishBtn.style.flex = '1';
-        publishBtn.addEventListener('click', () => {
-          ProdutoCadastro.publishProduct(product.id);
-          alert('Produto publicado no catálogo!');
-          // Chamar callback para voltar ao catálogo
-          if (callbacks.onPublishProduct) {
-            callbacks.onPublishProduct();
-          }
-        });
-
         const editBtn = document.createElement('button');
         editBtn.className = 'btn-add-cart';
         editBtn.textContent = 'Editar';
@@ -391,7 +381,6 @@ const ProdutoCadastro = {
           callbacks.onEditProduct(product);
         });
 
-        topButtons.appendChild(publishBtn);
         topButtons.appendChild(editBtn);
 
         const deleteBtn = document.createElement('button');
@@ -421,6 +410,34 @@ const ProdutoCadastro = {
     catalogContainer.appendChild(subtitle);
     catalogContainer.appendChild(newProductBtn);
     catalogContainer.appendChild(productsGrid);
+
+    // Botão Publicar Todos - Embaixo da grid, alinhado à ESQUERDA
+    const publishAllBtn = document.createElement('button');
+    publishAllBtn.textContent = 'Publicar Todos';
+    publishAllBtn.className = 'filter-btn';
+    publishAllBtn.style.background = '#10b981';
+    publishAllBtn.style.color = 'white';
+    publishAllBtn.style.borderColor = '#10b981';
+    publishAllBtn.style.marginTop = '2rem';
+    publishAllBtn.style.alignSelf = 'flex-start';  // ← ESQUERDA
+    publishAllBtn.addEventListener('click', () => {
+      const products = ProdutoCadastro.getProdutosCadastrados();
+      if (products.length === 0) {
+        alert('Nenhum produto para publicar!');
+        return;
+      }
+      if (confirm(`Tem certeza que deseja publicar todos os ${products.length} produtos?`)) {
+        products.forEach(product => {
+          ProdutoCadastro.publishProduct(product.id);
+        });
+        alert(`${products.length} produto(s) publicado(s) com sucesso!`);
+        if (callbacks.onPublishProduct) {
+          callbacks.onPublishProduct();
+        }
+      }
+    });
+
+    catalogContainer.appendChild(publishAllBtn);
     catalogPage.appendChild(catalogContainer);
     page.appendChild(catalogPage);
 
