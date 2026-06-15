@@ -23,5 +23,9 @@ Aplicação web de marketplace de produtos de beleza com **HTML, CSS e JavaScrip
 ## Fluxo
 Catálogo → Cadastro → Login → Meus Produtos → Publicar → Catálogo
 
+**PAGE** - https://jessica-silvestre.github.io/FATEC-atividades-Programa-o-de-S-tios-Internet-1-2026/
+**PITCH** - https://studio.youtube.com/video/zLTyHkV34Mk/edit
+**LINKEDIN** - https://www.linkedin.com/in/j%C3%A9ssica-silvestre-8736385b/
+
 ## Aluna
 **Jéssica Silvestre de Paula** | RA: 2650832513013 | FATEC São Roque
