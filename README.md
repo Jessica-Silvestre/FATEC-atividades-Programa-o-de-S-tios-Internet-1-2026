@@ -1,10 +1,10 @@
 # Beleza na Fatec
-Aplicação web de e-commerce de produtos de beleza com **HTML, CSS e JavaScript puro**.
+Aplicação web de marketplace de produtos de beleza com **HTML, CSS e JavaScript puro**.
 
 ## Funcionalidades
 - Catálogo de produtos com filtros
 - Cadastro e login de usuários
-- Gerenciamento de produtos (criar, editar, deletar, publicar)
+- Gerenciamento crud (criar, editar, deletar, publicar)
 - Design responsivo
 
 ## Tecnologias
